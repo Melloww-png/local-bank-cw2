@@ -77,3 +77,63 @@ footer {
     border-top: 1px solid #d7ddcf;
     font-size: 14px;
 }
+a {
+    color: #365842;
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 32px;
+    display: grid;
+    gap: 24px;
+}
+
+.form-field {
+    display: grid;
+    gap: 8px;
+}
+
+.form-field label {
+    font-weight: bold;
+}
+
+.form-field input {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 16px;
+    border: 1px solid #788374;
+    border-radius: 6px;
+    background: #f7f8f4;
+    color: #242a23;
+    font: inherit;
+}
+
+.form-field small {
+    font-size: 14px;
+}
+
+.auth-form button {
+    justify-self: start;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    background: #365842;
+    color: #ffffff;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.auth-form input:focus-visible,
+.auth-form button:focus-visible {
+    outline: 2px solid #365842;
+    outline-offset: 3px;
+}
+
+.form-error {
+    max-width: 480px;
+    padding: 12px 16px;
+    border: 1px solid #242a23;
+    border-radius: 6px;
+}
