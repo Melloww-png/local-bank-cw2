@@ -1,0 +1,79 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f7f8f4;
+    color: #242a23;
+    font-family: "Trebuchet MS", sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    width: min(960px, calc(100% - 48px));
+    margin-inline: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-block: 24px;
+    border-bottom: 1px solid #d7ddcf;
+}
+
+.brand {
+    color: #365842;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+main {
+    padding-block: 64px;
+}
+
+.eyebrow {
+    color: #365842;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+}
+
+h1 {
+    max-width: 650px;
+    margin: 16px 0;
+    font-size: clamp(36px, 6vw, 64px);
+    line-height: 1.12;
+}
+
+.intro {
+    max-width: 560px;
+    font-size: 19px;
+}
+
+.account-count {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid #d7ddcf;
+}
+
+h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.number {
+    margin: 8px 0;
+    color: #365842;
+    font-size: 48px;
+    font-weight: bold;
+}
+
+footer {
+    padding-block: 24px;
+    border-top: 1px solid #d7ddcf;
+    font-size: 14px;
+}

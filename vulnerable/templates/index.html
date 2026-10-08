@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mellow Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="container">
+        <a class="brand" href="{{ url_for('home') }}">Mellow Bank</a>
+        <span>Coursework demo</span>
+    </header>
+
+    <main class="container">
+        <p class="eyebrow">SECURE PROGRAMMING CW2</p>
+
+        <h1>Bank.</h1>
+
+        <p class="intro">
+            A local banking demo built around fictional accounts,
+            transfers, and loans.
+        </p>
+
+        <section class="account-count" aria-labelledby="accounts-title">
+            <h2 id="accounts-title">Registered accounts</h2>
+            <p class="number">{{ account_count }}</p>
+            <p>Only test accounts belong here.</p>
+        </section>
+    </main>
+
+    <footer class="container">
+        Demo only. No real money or personal details.
+    </footer>
+</body>
+</html>
