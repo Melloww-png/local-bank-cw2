@@ -3,34 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mellow Bank</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Mellow's Bank</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="container">
-        <a class="brand" href="{{ url_for('home') }}">Mellow Bank</a>
+        <a class="brand" href="{{ url_for('home') }}">Mellow's Bank</a>
         <span>Coursework demo</span>
     </header>
 
     <main class="container">
         <p class="eyebrow">SECURE PROGRAMMING CW2</p>
-
-        <h1>Bank.</h1>
+        <h1>Mellow's Bank</h1>
 
         <p class="intro">
-            A local banking demo built around fictional accounts,
-            transfers, and loans.
+            Manage your fictional account, transfers, and loans.
         </p>
 
-            <p>
-                <a href="{{ url_for('register') }}">Create an account</a>
-            </p>
+        <nav class="actions" aria-label="Account actions">
+            {% if session.get('user_id') %}
+                <a class="button" href="{{ url_for('dashboard') }}">
+                    My account
+                </a>
 
-        <section class="account-count" aria-labelledby="accounts-title">
-            <h2 id="accounts-title">Registered accounts</h2>
-            <p class="number">{{ account_count }}</p>
-            <p>Only test accounts belong here.</p>
-        </section>
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <button class="button" type="submit">Log out</button>
+                </form>
+            {% else %}
+                <a class="button" href="{{ url_for('login') }}">
+                    Sign in
+                </a>
+
+                <a class="button button-secondary"
+                   href="{{ url_for('register') }}">
+                    Create account
+                </a>
+            {% endif %}
+        </nav>
     </main>
 
     <footer class="container">

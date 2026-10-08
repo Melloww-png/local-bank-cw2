@@ -137,3 +137,55 @@ a {
     border: 1px solid #242a23;
     border-radius: 6px;
 }
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.actions form {
+    margin: 0;
+}
+
+.button,
+header button {
+    display: inline-block;
+    padding: 12px 24px;
+    border: 1px solid #365842;
+    border-radius: 6px;
+    background: #365842;
+    color: #ffffff;
+    font: inherit;
+    font-weight: bold;
+    line-height: 1.6;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button-secondary {
+    background: transparent;
+    color: #365842;
+}
+
+.button:focus-visible,
+header button:focus-visible {
+    outline: 2px solid #365842;
+    outline-offset: 3px;
+}
+
+.signup-promotion {
+    max-width: 480px;
+    margin-top: 32px;
+}
+
+.signup-promotion a {
+    font-weight: bold;
+}
+
+.promotion-note {
+    max-width: 480px;
+    margin-top: 8px;
+    font-size: 14px;
+}
