@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Account search | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>Find an account</h1>
+<p class="intro">Search for a customer by username.</p>
+<form class="form" method="GET" action="{{ url_for('search') }}">
+    <label for="q">Username</label>
+    <input id="q" name="q" value="{{ query }}" required>
+    <button class="button" type="submit">Search</button>
+</form>
+{% if query %}
+<section class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>Account ID</th>
+                <th>Username</th>
+                <th>Full name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.username }}</td>
+                <td>{{ row.full_name or 'Not added' }}</td>
+                <td>{{ row.email }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">No matching accounts.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+{% endblock %}

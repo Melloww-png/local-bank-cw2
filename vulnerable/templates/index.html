@@ -1,50 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mellow's Bank</title>
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header class="container">
-        <a class="brand" href="{{ url_for('home') }}">Mellow's Bank</a>
-        <span>Coursework demo</span>
-    </header>
-
-    <main class="container">
-        <p class="eyebrow">SECURE PROGRAMMING CW2</p>
-        <h1>Mellow's Bank</h1>
-
-        <p class="intro">
-            Manage your fictional account, transfers, and loans.
-        </p>
-
-        <nav class="actions" aria-label="Account actions">
-            {% if session.get('user_id') %}
-                <a class="button" href="{{ url_for('dashboard') }}">
-                    My account
-                </a>
-
-                <form method="POST" action="{{ url_for('logout') }}">
-                    <button class="button" type="submit">Log out</button>
-                </form>
-            {% else %}
-                <a class="button" href="{{ url_for('login') }}">
-                    Sign in
-                </a>
-
-                <a class="button button-secondary"
-                   href="{{ url_for('register') }}">
-                    Create account
-                </a>
-            {% endif %}
-        </nav>
-    </main>
-
-    <footer class="container">
-        Demo only. No real money or personal details.
-    </footer>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<p class="eyebrow">SECURE PROGRAMMING CW2</p>
+<h1>Mellow's Bank</h1>
+<p class="intro">Manage your account, send money, and keep track of your loans.</p>
+<div class="actions">
+    {% if g.user %}
+        <a class="button" href="{{ url_for('dashboard') }}">Open my account</a>
+    {% else %}
+        <a class="button" href="{{ url_for('login') }}">Sign in</a>
+        <a class="button secondary" href="{{ url_for('register') }}">Create account</a>
+    {% endif %}
+</div>
+<section>
+    <h2>A cruise could be your next stop</h2>
+    <p>Create an account for a chance to win a free cruise ticket.</p>
+    <p class="muted">A fictional giveaway for this coursework project.</p>
+</section>
+{% endblock %}
