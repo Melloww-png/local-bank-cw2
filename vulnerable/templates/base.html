@@ -19,16 +19,6 @@
                 <a href="{{ url_for('profile') }}">Profile</a>
                 <a href="{{ url_for('support') }}">Support</a>
 
-                <a href="{{ url_for('notifications') }}">
-                    Notifications
-                    {% if g.registration_unread_count %}
-                        <span class="badge"
-                              aria-label="{{ g.registration_unread_count }} unread">
-                            {{ g.registration_unread_count }}
-                        </span>
-                    {% endif %}
-                </a>
-
                 {% if g.user.role == 'customer' %}
                     <a href="{{ url_for('giveaway') }}">Cruise giveaway</a>
                 {% else %}

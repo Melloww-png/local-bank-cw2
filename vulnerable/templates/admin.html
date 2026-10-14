@@ -9,55 +9,6 @@
     Manage customer accounts, borrowing limits, and giveaway winners.
 </p>
 
-<section aria-labelledby="registration-heading">
-    <h2 id="registration-heading">Registration notifications</h2>
-
-    <p>
-        Choose a customer account to receive a notice whenever
-        a new customer registers.
-    </p>
-
-    <form class="form"
-          method="POST"
-          action="{{ url_for('set_registration_recipient') }}">
-
-        <label for="registration-recipient">Send notices to</label>
-
-        <select id="registration-recipient" name="recipient_id">
-            <option value=""
-                    {% if registration_recipient_id is none %}selected{% endif %}>
-                Off
-            </option>
-
-            {% for customer in customers %}
-                <option value="{{ customer.id }}"
-                        {% if registration_recipient_id == customer.id %}selected{% endif %}>
-                    {{ customer.username }} —
-                    {{ customer.full_name or 'Name not added' }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <p class="muted">
-            The chosen account can see new customers' full names,
-            usernames, and emails in Notifications.
-            Notices do not contain passwords or card details.
-            Only new registrations after this setting is saved send a notice.
-        </p>
-
-        <button class="button" type="submit">
-            Save notification recipient
-        </button>
-    </form>
-
-    {% if not customers %}
-        <p>
-            Create the recipient's customer account first,
-            then choose it here.
-        </p>
-    {% endif %}
-</section>
-
 <section>
     <h2>Customers</h2>
     <p>Open a customer's account to change their details.</p>
@@ -230,7 +181,7 @@
             <h3>{{ message.username }}</h3>
             <p class="muted">{{ message.created_at }} UTC</p>
 
-            {# V5: Disables escaping for a customer-controlled message. #}
+            {# V5: Deliberate stored XSS for the coursework demo. #}
             <div>{{ message.body | safe }}</div>
         </article>
     {% else %}
