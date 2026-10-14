@@ -1,16 +1,25 @@
 {% extends "base.html" %}
+
 {% block title %}Support | Mellow's Bank{% endblock %}
+
 {% block content %}
 <h1>Contact support</h1>
 <p class="intro">Send a message to the administrator.</p>
+
 <form class="form" method="POST" action="{{ url_for('support') }}">
     <label for="body">Your message</label>
-    <textarea id="body" name="body" rows="5"
-              maxlength="2000" required></textarea>
+    <textarea id="body"
+              name="body"
+              rows="5"
+              maxlength="2000"
+              required></textarea>
+
     <button class="button" type="submit">Send message</button>
 </form>
+
 <section>
     <h2>Your messages</h2>
+
     {% for message in messages %}
         <article class="message">
             <p class="muted">{{ message.created_at }} UTC</p>

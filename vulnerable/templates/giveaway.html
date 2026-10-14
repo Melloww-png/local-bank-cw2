@@ -1,8 +1,14 @@
 {% extends "base.html" %}
+
 {% block title %}Cruise giveaway | Mellow's Bank{% endblock %}
+
 {% block content %}
 <h1>Cruise giveaway</h1>
-<p class="intro">Check whether you have been selected for a free cruise ticket.</p>
+
+<p class="intro">
+    Check whether you have been selected for a free cruise ticket.
+</p>
+
 {% if extras.cruise_claimed %}
     <section>
         <h2>Your ticket</h2>
@@ -15,11 +21,15 @@
     {% else %}
         <p>You have not been selected as a winner.</p>
     {% endif %}
+
     <form method="POST" action="{{ url_for('giveaway') }}">
-        <input type="hidden" name="eligible"
+        <input type="hidden"
+               name="eligible"
                value="{{ 'true' if extras.cruise_eligible else 'false' }}">
+
         <button class="button" type="submit">Claim ticket</button>
     </form>
 {% endif %}
+
 <p class="muted">Coursework giveaway demo. No real tickets or prizes.</p>
 {% endblock %}

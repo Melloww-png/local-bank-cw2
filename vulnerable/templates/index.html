@@ -1,16 +1,27 @@
 {% extends "base.html" %}
+
 {% block content %}
 <p class="eyebrow">SECURE PROGRAMMING CW2</p>
+
 <h1>Mellow's Bank</h1>
-<p class="intro">Manage your account, send money, and keep track of your loans.</p>
+
+<p class="intro">
+    Manage your account, send money, and keep track of your loans.
+</p>
+
 <div class="actions">
     {% if g.user %}
-        <a class="button" href="{{ url_for('dashboard') }}">Open my account</a>
+        <a class="button" href="{{ url_for('dashboard') }}">
+            Open my account
+        </a>
     {% else %}
         <a class="button" href="{{ url_for('login') }}">Sign in</a>
-        <a class="button secondary" href="{{ url_for('register') }}">Create account</a>
+        <a class="button secondary" href="{{ url_for('register') }}">
+            Create account
+        </a>
     {% endif %}
 </div>
+
 <section>
     <h2>A cruise could be your next stop</h2>
     <p>Create an account for a chance to win a free cruise ticket.</p>

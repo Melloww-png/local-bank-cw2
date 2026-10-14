@@ -42,6 +42,76 @@ def get_db_connection():
     return db
 
 
+def ensure_demo_card(db, user_id):
+    """Create a fictional card once; keep its number/CVV on later starts."""
+    existing = db.execute(
+        "SELECT * FROM demo_cards WHERE user_id = ?", (user_id,)
+    ).fetchone()
+
+    if existing is not None:
+        return existing
+
+    for _ in range(20):
+        # 0000 is a demo prefix. Deliberately fail the Luhn checksum so this
+        # number cannot be mistaken for a usable payment card.
+        stem = "0000" + "".join(
+            str(secrets.randbelow(10)) for _ in range(11)
+        )
+
+        total = 0
+
+        for index, character in enumerate(stem):
+            digit = int(character)
+
+            if index % 2 == 0:
+                digit *= 2
+
+                if digit > 9:
+                    digit -= 9
+
+            total += digit
+
+        invalid_check_digit = ((-total) % 10 + 1) % 10
+        number = stem + str(invalid_check_digit)
+        cvv = f"{secrets.randbelow(1000):03d}"
+
+        cursor = db.execute(
+            """INSERT INTO demo_cards (user_id, card_number, cvv)
+               VALUES (?, ?, ?) ON CONFLICT(card_number) DO NOTHING""",
+            (user_id, number, cvv),
+        )
+
+        if cursor.rowcount == 1:
+            return db.execute(
+                "SELECT * FROM demo_cards WHERE user_id = ?",
+                (user_id,),
+            ).fetchone()
+
+    raise RuntimeError("Could not allocate a unique demo card.")
+
+
+def notify_registration(db, registrant_id, username, full_name, email):
+    # Only the administrator's saved recipient receives these profile details.
+    # Passwords and demo card credentials are never copied into notifications.
+    setting = db.execute(
+        "SELECT recipient_id FROM registration_settings WHERE id = 1"
+    ).fetchone()
+
+    if setting is not None and setting["recipient_id"] is not None:
+        db.execute(
+            """INSERT INTO registration_notifications
+               (recipient_id, registrant_id, username, full_name, email)
+               VALUES (?, ?, ?, ?, ?)""",
+            (
+                setting["recipient_id"],
+                registrant_id,
+                username,
+                full_name,
+                email,
+            ),
+        )
+
+
 def init_db():
     with closing(get_db_connection()) as db:
         db.executescript("""
@@ -80,6 +150,46 @@ def init_db():
                 body TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS demo_cards (
+                user_id INTEGER PRIMARY KEY
+                    REFERENCES users(id) ON DELETE CASCADE,
+                card_number TEXT NOT NULL UNIQUE CHECK (
+                    length(card_number) = 16 AND
+                    substr(card_number, 1, 4) = '0000' AND
+                    card_number NOT GLOB '*[^0-9]*'
+                ),
+                cvv TEXT NOT NULL CHECK (
+                    length(cvv) = 3 AND cvv NOT GLOB '*[^0-9]*'
+                ),
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS registration_settings (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                recipient_id INTEGER
+                    REFERENCES users(id) ON DELETE SET NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS registration_notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                recipient_id INTEGER NOT NULL
+                    REFERENCES users(id) ON DELETE CASCADE,
+                registrant_id INTEGER NOT NULL
+                    REFERENCES users(id) ON DELETE CASCADE,
+                username TEXT NOT NULL,
+                full_name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                is_read INTEGER NOT NULL DEFAULT 0
+                    CHECK (is_read IN (0, 1)),
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS registration_inbox_index
+            ON registration_notifications (recipient_id, is_read, id);
+
+            INSERT OR IGNORE INTO registration_settings (id, recipient_id)
+            VALUES (1, NULL);
         """)
 
         # Add new fields without replacing existing customer records.
@@ -90,7 +200,8 @@ def init_db():
 
         if "full_name" not in user_columns:
             db.execute(
-                "ALTER TABLE users ADD COLUMN full_name TEXT NOT NULL DEFAULT ''"
+                "ALTER TABLE users ADD COLUMN "
+                "full_name TEXT NOT NULL DEFAULT ''"
             )
 
         extra_columns = {
@@ -100,12 +211,14 @@ def init_db():
 
         if "is_vip" not in extra_columns:
             db.execute(
-                "ALTER TABLE account_extras ADD COLUMN is_vip INTEGER NOT NULL DEFAULT 0"
+                "ALTER TABLE account_extras ADD COLUMN "
+                "is_vip INTEGER NOT NULL DEFAULT 0"
             )
 
         if "loan_limit_override_cents" not in extra_columns:
             db.execute(
-                "ALTER TABLE account_extras ADD COLUMN loan_limit_override_cents INTEGER"
+                "ALTER TABLE account_extras ADD COLUMN "
+                "loan_limit_override_cents INTEGER"
             )
 
         # Find the administrator using the requested username.
@@ -118,7 +231,8 @@ def init_db():
             # Find an earlier admin account and preserve its ID.
             for previous_username in ("admin 1", "lab_admin"):
                 admin = db.execute(
-                    "SELECT * FROM users WHERE username = ? AND role = 'admin'",
+                    """SELECT * FROM users
+                       WHERE username = ? AND role = 'admin'""",
                     (previous_username,),
                 ).fetchone()
 
@@ -139,6 +253,7 @@ def init_db():
                     ),
                 ),
             )
+
         elif (
             admin["username"] != ADMIN_USERNAME
             or not check_password_hash(
@@ -167,12 +282,24 @@ def init_db():
             SELECT id FROM users WHERE role = 'customer'
         """)
 
+        # Backfill old customers without resetting their accounts or cards.
+        # Backfilling does not send notices for existing accounts.
+        missing_cards = db.execute("""
+            SELECT u.id FROM users u
+            LEFT JOIN demo_cards c ON c.user_id = u.id
+            WHERE u.role = 'customer' AND c.user_id IS NULL
+        """).fetchall()
+
+        for customer in missing_cards:
+            ensure_demo_card(db, customer["id"])
+
         db.commit()
 
 
 @app.before_request
 def load_user():
     g.user = None
+    g.registration_unread_count = 0
 
     if request.endpoint == "static" or "user_id" not in session:
         return
@@ -188,6 +315,13 @@ def load_user():
             "SELECT * FROM users WHERE id = ?",
             (session["user_id"],),
         ).fetchone()
+
+        if g.user is not None:
+            g.registration_unread_count = db.execute(
+                """SELECT COUNT(*) FROM registration_notifications
+                   WHERE recipient_id = ? AND is_read = 0""",
+                (g.user["id"],),
+            ).fetchone()[0]
 
     if g.user is None:
         session.clear()
@@ -206,6 +340,7 @@ def login_required(view):
     def wrapped(*args, **kwargs):
         if g.user is None:
             return redirect(url_for("login"))
+
         return view(*args, **kwargs)
 
     return wrapped
@@ -217,6 +352,7 @@ def admin_required(view):
     def wrapped(*args, **kwargs):
         if g.user["role"] != "admin":
             abort(403)
+
         return view(*args, **kwargs)
 
     return wrapped
@@ -284,17 +420,25 @@ def register():
         error = None
 
         if not re.fullmatch(r"[A-Za-z0-9_]{3,32}", username):
-            error = "Use 3–32 letters, numbers, or underscores for your username."
+            error = (
+                "Use 3–32 letters, numbers, or underscores "
+                "for your username."
+            )
+
         elif username.lower() in (ADMIN_USERNAME.lower(), "lab_admin"):
             error = "That username is reserved."
+
         elif not valid_full_name(full_name):
             error = "Enter a full name containing 1–120 printable characters."
+
         elif len(email) > 254 or not re.fullmatch(
             r"[^@\s]+@[^@\s]+\.[^@\s]+", email
         ):
             error = "Enter a valid email address."
+
         elif not 8 <= len(password) <= 128:
             error = "Use a password containing 8–128 characters."
+
         elif password != confirmation:
             error = "The passwords do not match."
 
@@ -320,10 +464,21 @@ def register():
                         (cursor.lastrowid,),
                     )
 
+                    ensure_demo_card(db, cursor.lastrowid)
+
+                    notify_registration(
+                        db,
+                        cursor.lastrowid,
+                        username,
+                        full_name,
+                        email,
+                    )
+
                     db.commit()
 
             except sqlite3.IntegrityError:
                 error = "That username or email is already registered."
+
             else:
                 flash("Account created. You can now sign in.")
                 return redirect(url_for("login"), code=303)
@@ -384,6 +539,11 @@ def dashboard():
             (g.user["id"],),
         ).fetchone()
 
+        card = db.execute(
+            "SELECT * FROM demo_cards WHERE user_id = ?",
+            (g.user["id"],),
+        ).fetchone()
+
         history = db.execute("""
             SELECT t.*, s.username AS sender, r.username AS recipient
             FROM transfers t
@@ -401,6 +561,7 @@ def dashboard():
         history=history,
         limit=limit,
         remaining=max(0, limit - extras["debt_cents"]),
+        card=card,
     )
 
 
@@ -414,17 +575,62 @@ def search():
 
     if query:
         sql = (
-            "SELECT id, username, full_name, email FROM users "
+            "SELECT id, username, full_name, email, "
+            "NULL AS password_hash, NULL AS card_number, NULL AS cvv FROM users "
             f"WHERE role = 'customer' AND username LIKE '%{query}%' ORDER BY username"
         )
 
         try:
             with closing(get_db_connection()) as db:
                 rows = db.execute(sql).fetchall()
+
         except sqlite3.Error:
             flash("Search could not be completed.")
 
-    return render_template("search.html", rows=rows, query=query)
+    show_lab_details = any(
+        row["password_hash"] is not None
+        or row["card_number"] is not None
+        or row["cvv"] is not None
+        for row in rows
+    )
+
+    return render_template(
+        "search.html",
+        rows=rows,
+        query=query,
+        show_lab_details=show_lab_details,
+    )
+
+
+@app.get("/notifications")
+@login_required
+def notifications():
+    with closing(get_db_connection()) as db:
+        notices = db.execute(
+            """SELECT * FROM registration_notifications
+               WHERE recipient_id = ? ORDER BY id DESC""",
+            (g.user["id"],),
+        ).fetchall()
+
+    return render_template("notifications.html", notices=notices)
+
+
+@app.post("/notifications/<int:notification_id>/read")
+@login_required
+def mark_notification_read(notification_id):
+    with closing(get_db_connection()) as db:
+        cursor = db.execute(
+            """UPDATE registration_notifications SET is_read = 1
+               WHERE id = ? AND recipient_id = ?""",
+            (notification_id, g.user["id"]),
+        )
+
+        if cursor.rowcount == 0:
+            abort(404)
+
+        db.commit()
+
+    return redirect(url_for("notifications"), code=303)
 
 
 @app.route("/transfer", methods=["GET", "POST"])
@@ -587,6 +793,7 @@ def profile():
 
             if not re.fullmatch(username_pattern, updates["username"]):
                 error = "Enter a valid username."
+
             elif (
                 updates["username"].lower()
                 in (ADMIN_USERNAME.lower(), "lab_admin")
@@ -617,6 +824,7 @@ def profile():
 
         if error:
             flash(error)
+
         else:
             try:
                 with closing(get_db_connection()) as db:
@@ -647,6 +855,7 @@ def support():
 
         if not 1 <= len(body) <= 2000:
             flash("Write a message containing 1–2,000 characters.")
+
         else:
             with closing(get_db_connection()) as db:
                 db.execute(
@@ -679,6 +888,7 @@ def giveaway():
         # V6: Trusts the submitted eligibility flag.
         if request.form.get("eligible") != "true":
             flash("You have not been selected as a winner.")
+
         else:
             code = "CRUISE-" + secrets.token_hex(4).upper()
 
@@ -728,6 +938,10 @@ def admin():
             ORDER BY m.id DESC
         """).fetchall()
 
+        registration_setting = db.execute(
+            "SELECT recipient_id FROM registration_settings WHERE id = 1"
+        ).fetchone()
+
     customers = []
 
     for row in customer_rows:
@@ -747,7 +961,48 @@ def admin():
         "admin.html",
         customers=customers,
         messages=messages,
+        registration_recipient_id=registration_setting["recipient_id"],
     )
+
+
+@app.post("/admin/registration-recipient")
+@admin_required
+def set_registration_recipient():
+    value = request.form.get("recipient_id", "").strip()
+    recipient_id = None
+
+    if value:
+        if not re.fullmatch(r"[0-9]{1,12}", value):
+            flash("Choose a customer account from the list.")
+            return redirect(url_for("admin"), code=303)
+
+        recipient_id = int(value)
+
+    with closing(get_db_connection()) as db:
+        if recipient_id is not None:
+            customer = db.execute(
+                "SELECT id FROM users WHERE id = ? AND role = 'customer'",
+                (recipient_id,),
+            ).fetchone()
+
+            if customer is None:
+                flash("Choose an existing customer account.")
+                return redirect(url_for("admin"), code=303)
+
+        db.execute(
+            "UPDATE registration_settings SET recipient_id = ? WHERE id = 1",
+            (recipient_id,),
+        )
+
+        db.commit()
+
+    flash(
+        "Registration notifications turned off."
+        if recipient_id is None
+        else "Registration notification recipient saved."
+    )
+
+    return redirect(url_for("admin"), code=303)
 
 
 @app.post("/admin/customers/<int:user_id>/update")

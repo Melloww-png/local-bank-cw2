@@ -1,8 +1,62 @@
 {% extends "base.html" %}
+
 {% block title %}Administration | Mellow's Bank{% endblock %}
+
 {% block content %}
 <h1>Administration</h1>
-<p class="intro">Manage customer accounts, borrowing limits, and giveaway winners.</p>
+
+<p class="intro">
+    Manage customer accounts, borrowing limits, and giveaway winners.
+</p>
+
+<section aria-labelledby="registration-heading">
+    <h2 id="registration-heading">Registration notifications</h2>
+
+    <p>
+        Choose a customer account to receive a notice whenever
+        a new customer registers.
+    </p>
+
+    <form class="form"
+          method="POST"
+          action="{{ url_for('set_registration_recipient') }}">
+
+        <label for="registration-recipient">Send notices to</label>
+
+        <select id="registration-recipient" name="recipient_id">
+            <option value=""
+                    {% if registration_recipient_id is none %}selected{% endif %}>
+                Off
+            </option>
+
+            {% for customer in customers %}
+                <option value="{{ customer.id }}"
+                        {% if registration_recipient_id == customer.id %}selected{% endif %}>
+                    {{ customer.username }} —
+                    {{ customer.full_name or 'Name not added' }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <p class="muted">
+            The chosen account can see new customers' full names,
+            usernames, and emails in Notifications.
+            Notices do not contain passwords or card details.
+            Only new registrations after this setting is saved send a notice.
+        </p>
+
+        <button class="button" type="submit">
+            Save notification recipient
+        </button>
+    </form>
+
+    {% if not customers %}
+        <p>
+            Create the recipient's customer account first,
+            then choose it here.
+        </p>
+    {% endif %}
+</section>
 
 <section>
     <h2>Customers</h2>
@@ -12,11 +66,16 @@
         <article class="customer" id="customer-{{ customer.id }}">
             <div class="customer-heading">
                 <h3>{{ customer.full_name or customer.username }}</h3>
-                <span class="badge">{{ 'VIP' if customer.is_vip else 'Standard' }}</span>
+
+                <span class="badge">
+                    {{ 'VIP' if customer.is_vip else 'Standard' }}
+                </span>
             </div>
 
             <p class="muted">
-                Account {{ customer.id }} · {{ customer.username }} · {{ customer.email }}
+                Account {{ customer.id }} ·
+                {{ customer.username }} ·
+                {{ customer.email }}
             </p>
 
             <dl>
@@ -40,47 +99,82 @@
 
                 <dt>Cruise giveaway</dt>
                 <dd>
-                    {{ 'Winner' if customer.cruise_eligible else 'Not selected' }} ·
+                    {{ 'Winner' if customer.cruise_eligible else 'Not selected' }}
+                    ·
                     {{ 'Ticket claimed' if customer.cruise_claimed else 'Ticket not claimed' }}
                 </dd>
             </dl>
 
             <details>
                 <summary>Edit account</summary>
-                <form class="form admin-form" method="POST"
+
+                <form class="form admin-form"
+                      method="POST"
                       action="{{ url_for('update_customer', user_id=customer.id) }}">
+
                     <div class="form-fields">
                         <div class="field">
-                            <label for="vip-{{ customer.id }}">Account type</label>
-                            <select id="vip-{{ customer.id }}" name="is_vip" required>
-                                <option value="0" {% if not customer.is_vip %}selected{% endif %}>
+                            <label for="vip-{{ customer.id }}">
+                                Account type
+                            </label>
+
+                            <select id="vip-{{ customer.id }}"
+                                    name="is_vip"
+                                    required>
+
+                                <option value="0"
+                                        {% if not customer.is_vip %}selected{% endif %}>
                                     Standard
                                 </option>
-                                <option value="1" {% if customer.is_vip %}selected{% endif %}>
+
+                                <option value="1"
+                                        {% if customer.is_vip %}selected{% endif %}>
                                     VIP
                                 </option>
                             </select>
                         </div>
 
                         <div class="field">
-                            <label for="score-{{ customer.id }}">Credit score</label>
-                            <input type="number" id="score-{{ customer.id }}"
-                                   name="credit_score" min="300" max="850" step="1"
-                                   value="{{ customer.credit_score }}" required>
+                            <label for="score-{{ customer.id }}">
+                                Credit score
+                            </label>
+
+                            <input type="number"
+                                   id="score-{{ customer.id }}"
+                                   name="credit_score"
+                                   min="300"
+                                   max="850"
+                                   step="1"
+                                   value="{{ customer.credit_score }}"
+                                   required>
                         </div>
 
                         <div class="field">
-                            <label for="debt-{{ customer.id }}">Outstanding debt (SGD)</label>
-                            <input type="number" id="debt-{{ customer.id }}"
-                                   name="debt" min="0" max="1000000" step="0.01"
+                            <label for="debt-{{ customer.id }}">
+                                Outstanding debt (SGD)
+                            </label>
+
+                            <input type="number"
+                                   id="debt-{{ customer.id }}"
+                                   name="debt"
+                                   min="0"
+                                   max="1000000"
+                                   step="0.01"
                                    value="{{ '%.2f' | format(customer.debt_cents / 100) }}"
                                    required>
                         </div>
 
                         <div class="field">
-                            <label for="limit-{{ customer.id }}">Custom borrowing limit (SGD)</label>
-                            <input type="number" id="limit-{{ customer.id }}"
-                                   name="borrowing_limit" min="0" max="1000000" step="0.01"
+                            <label for="limit-{{ customer.id }}">
+                                Custom borrowing limit (SGD)
+                            </label>
+
+                            <input type="number"
+                                   id="limit-{{ customer.id }}"
+                                   name="borrowing_limit"
+                                   min="0"
+                                   max="1000000"
+                                   step="0.01"
                                    value="{{ '%.2f' | format(customer.loan_limit_override_cents / 100) if customer.loan_limit_override_cents is not none else '' }}"
                                    aria-describedby="limit-help-{{ customer.id }}">
                         </div>
@@ -97,19 +191,25 @@
                         Lowering the borrowing limit does not remove existing debt.
                     </p>
 
-                    <button class="button" type="submit">Save account</button>
+                    <button class="button" type="submit">
+                        Save account
+                    </button>
                 </form>
             </details>
 
             <div class="actions compact">
                 <form method="POST"
                       action="{{ url_for('delete_debt', user_id=customer.id) }}">
-                    <button class="button secondary" type="submit">Clear debt</button>
+
+                    <button class="button secondary" type="submit">
+                        Clear debt
+                    </button>
                 </form>
 
                 {% if not customer.cruise_eligible %}
                     <form method="POST"
                           action="{{ url_for('select_winner', user_id=customer.id) }}">
+
                         <button class="button secondary" type="submit">
                             Select cruise winner
                         </button>
@@ -124,10 +224,12 @@
 
 <section>
     <h2>Support inbox</h2>
+
     {% for message in messages %}
         <article class="message">
             <h3>{{ message.username }}</h3>
             <p class="muted">{{ message.created_at }} UTC</p>
+
             {# V5: Disables escaping for a customer-controlled message. #}
             <div>{{ message.body | safe }}</div>
         </article>

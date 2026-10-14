@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block title %}My account | Mellow's Bank{% endblock %}
-{% block content %}
 
+{% block title %}My account | Mellow's Bank{% endblock %}
+
+{% block content %}
 <h1>Hello, {{ g.user.full_name or g.user.username }}</h1>
 <p class="intro">Your account overview.</p>
 
@@ -55,24 +56,31 @@
                     <th scope="row">Customer</th>
                     <td>{{ g.user.full_name or g.user.username }}</td>
                 </tr>
+
                 <tr>
                     <th scope="row">Username</th>
                     <td>{{ g.user.username }}</td>
                 </tr>
+
                 <tr>
                     <th scope="row">Eligibility</th>
-                    <td>{{ 'Eligible' if extras.cruise_eligible else 'Not selected' }}</td>
+                    <td>
+                        {{ 'Eligible' if extras.cruise_eligible else 'Not selected' }}
+                    </td>
                 </tr>
+
                 <tr>
                     <th scope="row">Ticket status</th>
-                    <td>{{ 'Claimed' if extras.cruise_claimed else 'Not claimed' }}</td>
+                    <td>
+                        {{ 'Claimed' if extras.cruise_claimed else 'Not claimed' }}
+                    </td>
                 </tr>
 
                 {% if extras.cruise_claimed and extras.ticket_code %}
-                <tr>
-                    <th scope="row">Ticket code</th>
-                    <td>{{ extras.ticket_code }}</td>
-                </tr>
+                    <tr>
+                        <th scope="row">Ticket code</th>
+                        <td>{{ extras.ticket_code }}</td>
+                    </tr>
                 {% endif %}
             </tbody>
         </table>
@@ -87,20 +95,64 @@
     </section>
 </div>
 
+<section aria-labelledby="card-heading">
+    <h2 id="card-heading">Your demo card</h2>
+
+    <p class="muted">
+        Fictional card details for this bank simulator.
+        Cannot be used for payments.
+    </p>
+
+    {% if card %}
+        <div class="demo-card">
+            <p class="demo-card-label">Mellow's Bank · DEMO ONLY</p>
+
+            <p class="card-number" aria-label="Demo card number">
+                {{ card.card_number[0:4] }}
+                {{ card.card_number[4:8] }}
+                {{ card.card_number[8:12] }}
+                {{ card.card_number[12:16] }}
+            </p>
+
+            <dl>
+                <dt>Cardholder</dt>
+                <dd>{{ g.user.full_name or g.user.username }}</dd>
+
+                <dt>Demo CVV (three digits)</dt>
+                <dd class="card-cvv">{{ card.cvv }}</dd>
+
+                <dt>Created</dt>
+                <dd>{{ card.created_at }} UTC</dd>
+            </dl>
+        </div>
+    {% else %}
+        <p>Your demo card will be added when the app next starts.</p>
+    {% endif %}
+</section>
+
 <section>
     <h2>Request a loan</h2>
-    <p>Your existing debt and new loan must fit within your borrowing limit.</p>
+
+    <p>
+        Your existing debt and new loan must fit within your borrowing limit.
+    </p>
 
     <form class="form" method="POST" action="{{ url_for('borrow') }}">
         <label for="amount">Amount in SGD</label>
-        <input type="number" id="amount" name="amount"
-               min="0.01" step="0.01" required>
+        <input type="number"
+               id="amount"
+               name="amount"
+               min="0.01"
+               step="0.01"
+               required>
+
         <button class="button" type="submit">Request loan</button>
     </form>
 </section>
 
 <section>
     <h2>Recent transfers</h2>
+
     <div class="table-scroll">
         <table>
             <thead>
@@ -111,6 +163,7 @@
                     <th>Time</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for item in history %}
                     <tr>
@@ -120,11 +173,12 @@
                         <td>{{ item.created_at }} UTC</td>
                     </tr>
                 {% else %}
-                    <tr><td colspan="4">No transfers yet.</td></tr>
+                    <tr>
+                        <td colspan="4">No transfers yet.</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </section>
-
 {% endblock %}

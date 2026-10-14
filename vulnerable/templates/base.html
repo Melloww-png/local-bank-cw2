@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mellow's Bank{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="container">
         <a class="brand" href="{{ url_for('home') }}">Mellow's Bank</a>
+
         <nav aria-label="Main navigation">
             {% if g.user %}
                 <a href="{{ url_for('dashboard') }}">My account</a>
@@ -16,13 +18,27 @@
                 <a href="{{ url_for('transfer') }}">Transfer</a>
                 <a href="{{ url_for('profile') }}">Profile</a>
                 <a href="{{ url_for('support') }}">Support</a>
+
+                <a href="{{ url_for('notifications') }}">
+                    Notifications
+                    {% if g.registration_unread_count %}
+                        <span class="badge"
+                              aria-label="{{ g.registration_unread_count }} unread">
+                            {{ g.registration_unread_count }}
+                        </span>
+                    {% endif %}
+                </a>
+
                 {% if g.user.role == 'customer' %}
                     <a href="{{ url_for('giveaway') }}">Cruise giveaway</a>
                 {% else %}
                     <a href="{{ url_for('admin') }}">Admin</a>
                 {% endif %}
+
                 <form method="POST" action="{{ url_for('logout') }}">
-                    <button class="button secondary" type="submit">Log out</button>
+                    <button class="button secondary" type="submit">
+                        Log out
+                    </button>
                 </form>
             {% else %}
                 <a href="{{ url_for('login') }}">Sign in</a>
@@ -30,12 +46,17 @@
             {% endif %}
         </nav>
     </header>
+
     <main class="container">
         {% for message in get_flashed_messages() %}
             <p class="notice" role="status">{{ message }}</p>
         {% endfor %}
+
         {% block content %}{% endblock %}
     </main>
-    <footer class="container">Local coursework demo. Fictional money, accounts, and prizes.</footer>
+
+    <footer class="container">
+        Local coursework demo. Fictional money, cards, accounts, and prizes.
+    </footer>
 </body>
 </html>
