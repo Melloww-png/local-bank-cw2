@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+instance/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.key
+.env.secret

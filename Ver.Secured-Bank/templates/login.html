@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sign in | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>Sign in</h1>
+<p class="intro">Welcome back. Open your test account.</p>
+<form class="form" method="POST" action="{{ url_for('login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="username">Username</label>
+    <input id="username" name="username" maxlength="32" autocomplete="username"
+           value="{{ request.form.get('username', '') }}" required>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" maxlength="128"
+           autocomplete="current-password" required>
+    <button class="button" type="submit">Sign in</button>
+</form>
+<p class="promotion">Don't have an account?
+    <a href="{{ url_for('register') }}">Sign up with us now</a>
+    for a chance to win a free cruise ticket.</p>
+<p class="muted">Coursework giveaway demo. No real tickets or prizes.</p>
+{% endblock %}

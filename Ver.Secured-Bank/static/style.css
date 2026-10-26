@@ -1,0 +1,406 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --accent: #365842;
+    --ink: #242a23;
+    --line: #d7ddcf;
+}
+
+body {
+    margin: 0;
+    background: #f7f8f4;
+    color: var(--ink);
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    width: min(1080px, calc(100% - 48px));
+    margin-inline: auto;
+}
+
+header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a {
+    color: var(--accent);
+}
+
+nav,
+.actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+nav form,
+.actions form {
+    margin: 0;
+}
+
+main {
+    min-height: 65vh;
+    padding-block: 48px;
+}
+
+h1 {
+    margin: 0 0 16px;
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+h2 {
+    margin: 0 0 16px;
+    font-size: 24px;
+}
+
+h3 {
+    margin: 0 0 8px;
+}
+
+p {
+    margin: 0 0 16px;
+}
+
+.intro {
+    max-width: 650px;
+    font-size: 19px;
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+}
+
+section {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+}
+
+.number {
+    color: var(--accent);
+    font-size: clamp(30px, 5vw, 48px);
+    font-weight: bold;
+}
+
+dl {
+    display: grid;
+    grid-template-columns: minmax(140px, 200px) 1fr;
+    gap: 12px 24px;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.form {
+    display: grid;
+    gap: 12px;
+    max-width: 480px;
+    margin-block: 24px;
+}
+
+.form label {
+    font-weight: bold;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 16px;
+    border: 1px solid #788374;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    margin-bottom: 8px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.button {
+    display: inline-block;
+    justify-self: start;
+    padding: 10px 20px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: var(--accent);
+    color: #ffffff;
+    font: inherit;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.secondary {
+    background: transparent;
+    color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.notice {
+    border: 1px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 6px;
+}
+
+.muted {
+    font-size: 14px;
+}
+
+.promotion {
+    max-width: 480px;
+    margin-top: 32px;
+}
+
+.ticket {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    text-align: left;
+    vertical-align: top;
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: anywhere;
+}
+
+.message {
+    padding-block: 24px;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: anywhere;
+}
+
+.support-text {
+    white-space: pre-wrap;
+}
+
+.compact {
+    gap: 8px;
+}
+
+.compact .button {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.customer {
+    padding-block: 32px;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 24px;
+    overflow-wrap: anywhere;
+}
+
+.customer-heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.customer-heading h3 {
+    margin: 0;
+}
+
+.badge {
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 2px 12px;
+    font-size: 14px;
+}
+
+details {
+    margin-block: 24px;
+}
+
+summary {
+    color: var(--accent);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.admin-form {
+    max-width: 760px;
+    gap: 16px;
+}
+
+.form-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+}
+
+.field {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+}
+
+.field input,
+.field select {
+    margin: 0;
+}
+
+.admin-form p {
+    margin: 0;
+}
+
+footer {
+    padding-block: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: calc(100% - 32px);
+    }
+
+    main {
+        padding-block: 32px;
+    }
+
+    dl {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    dd {
+        margin-bottom: 12px;
+    }
+
+    .form-fields {
+        grid-template-columns: 1fr;
+    }
+}
+.account-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 32px;
+    margin-top: 40px;
+}
+
+.account-overview > section {
+    margin-top: 0;
+    min-width: 0;
+}
+
+.eligibility-table {
+    table-layout: fixed;
+}
+
+.eligibility-table th {
+    width: 40%;
+}
+
+.cruise-actions {
+    margin-block: 24px 16px;
+}
+
+/* Fictional card details and the account notification inbox. */
+.demo-card {
+    max-width: 560px;
+    padding: 24px;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.demo-card-label {
+    color: var(--accent);
+    font-weight: bold;
+    margin: 0 0 20px;
+}
+
+.card-number {
+    font-family: Consolas, monospace;
+    font-size: clamp(1.05rem, 4.2vw, 1.6rem);
+    letter-spacing: 0.05em;
+    margin: 0 0 24px;
+    overflow-wrap: anywhere;
+}
+
+.card-cvv, .card-search-number {
+    font-family: Consolas, monospace;
+}
+
+.card-search-number {
+    white-space: nowrap;
+}
+
+.hash-cell {
+    min-width: 240px;
+    max-width: 420px;
+    overflow-wrap: anywhere;
+    font-family: Consolas, monospace;
+    font-size: 0.85rem;
+}
+
+.registration-notice dl {
+    margin-bottom: 20px;
+}
+
+nav .badge {
+    margin-left: 4px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 800px) {
+    .account-overview {
+        grid-template-columns: 1fr;
+    }
+}

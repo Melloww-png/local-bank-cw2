@@ -1,0 +1,40 @@
+test_admin_role_is_reloaded_from_database (test_security.BankSecurityTests.test_admin_role_is_reloaded_from_database) ... ok
+test_all_admin_routes_check_the_role_on_the_server (test_security.BankSecurityTests.test_all_admin_routes_check_the_role_on_the_server) ... ok
+test_all_current_pages_render_for_their_authorized_roles (test_security.BankSecurityTests.test_all_current_pages_render_for_their_authorized_roles) ... ok
+test_concurrent_transfers_cannot_spend_the_same_balance_twice (test_security.BankSecurityTests.test_concurrent_transfers_cannot_spend_the_same_balance_twice) ... ok
+test_csrf_missing_invalid_and_other_sessions_tokens_are_rejected (test_security.BankSecurityTests.test_csrf_missing_invalid_and_other_sessions_tokens_are_rejected) ... ok
+test_every_rendered_post_form_contains_a_csrf_token (test_security.BankSecurityTests.test_every_rendered_post_form_contains_a_csrf_token) ... ok
+test_expired_session_requires_login (test_security.BankSecurityTests.test_expired_session_requires_login) ... ok
+test_first_run_admin_setup_creates_one_admin_without_a_shared_password (test_security.BankSecurityTests.test_first_run_admin_setup_creates_one_admin_without_a_shared_password) ... ok
+test_initialization_does_not_reset_the_admin_password (test_security.BankSecurityTests.test_initialization_does_not_reset_the_admin_password) ... ok
+test_login_does_not_accept_sql_injection_or_the_old_admin_password (test_security.BankSecurityTests.test_login_does_not_accept_sql_injection_or_the_old_admin_password) ... ok
+test_profile_rejects_duplicate_parameters (test_security.BankSecurityTests.test_profile_rejects_duplicate_parameters) ... ok
+test_registration_hashes_password_and_refuses_role_injection (test_security.BankSecurityTests.test_registration_hashes_password_and_refuses_role_injection) ... ok
+test_transfer_rejects_overspending_self_and_missing_recipients (test_security.BankSecurityTests.test_transfer_rejects_overspending_self_and_missing_recipients) ... ok
+test_transfer_rolls_back_both_balances_when_ledger_insert_fails (test_security.BankSecurityTests.test_transfer_rolls_back_both_balances_when_ledger_insert_fails) ... ok
+test_untrusted_hosts_are_rejected (test_security.BankSecurityTests.test_untrusted_hosts_are_rejected) ... ok
+test_v1_admin_sql_injection_is_literal_search_text (test_security.BankSecurityTests.test_v1_admin_sql_injection_is_literal_search_text) ... ok
+test_v1_legitimate_admin_search_omits_hashes_and_cards (test_security.BankSecurityTests.test_v1_legitimate_admin_search_omits_hashes_and_cards) ... ok
+test_v2_admin_can_clear_debt (test_security.BankSecurityTests.test_v2_admin_can_clear_debt) ... ok
+test_v2_customer_cannot_clear_own_or_another_customers_debt (test_security.BankSecurityTests.test_v2_customer_cannot_clear_own_or_another_customers_debt) ... ok
+test_v3_bad_amounts_cannot_change_balances_or_the_ledger (test_security.BankSecurityTests.test_v3_bad_amounts_cannot_change_balances_or_the_ledger) ... ok
+test_v3_positive_transfer_moves_the_exact_amount_once (test_security.BankSecurityTests.test_v3_positive_transfer_moves_the_exact_amount_once) ... ok
+test_v4_legitimate_profile_edits_work_without_changing_credit (test_security.BankSecurityTests.test_v4_legitimate_profile_edits_work_without_changing_credit) ... ok
+test_v4_only_admin_changes_can_raise_the_borrowing_limit (test_security.BankSecurityTests.test_v4_only_admin_changes_can_raise_the_borrowing_limit) ... ok
+test_v4_profile_rejects_all_protected_fields (test_security.BankSecurityTests.test_v4_profile_rejects_all_protected_fields) ... ok
+test_v5_preexisting_stored_html_is_also_escaped (test_security.BankSecurityTests.test_v5_preexisting_stored_html_is_also_escaped) ... ok
+test_v5_support_messages_are_escaped_in_the_admin_inbox (test_security.BankSecurityTests.test_v5_support_messages_are_escaped_in_the_admin_inbox) ... ok
+test_v6_fake_eligibility_cannot_claim_a_ticket (test_security.BankSecurityTests.test_v6_fake_eligibility_cannot_claim_a_ticket) ... ok
+test_v6_selected_winner_can_claim_only_one_ticket (test_security.BankSecurityTests.test_v6_selected_winner_can_claim_only_one_ticket) ... ok
+test_v7_customer_cannot_read_another_customers_card_or_support (test_security.BankSecurityTests.test_v7_customer_cannot_read_another_customers_card_or_support) ... ok
+test_v7_customer_search_is_forbidden_and_absent_from_navigation (test_security.BankSecurityTests.test_v7_customer_search_is_forbidden_and_absent_from_navigation) ... ok
+test_v8_plain_http_and_spoofed_forwarded_header_are_rejected (test_security.BankSecurityTests.test_v8_plain_http_and_spoofed_forwarded_header_are_rejected) ... ok
+test_v8_real_https_login_uses_a_verified_local_certificate (test_security.BankSecurityTests.test_v8_real_https_login_uses_a_verified_local_certificate) ... 127.0.0.1 - - [15/Oct/2026 16:35:12] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2026 16:35:12] "POST /login HTTP/1.1" 303 -
+ok
+test_v8_session_cookie_has_secure_httponly_and_samesite (test_security.BankSecurityTests.test_v8_session_cookie_has_secure_httponly_and_samesite) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 4.126s
+
+OK

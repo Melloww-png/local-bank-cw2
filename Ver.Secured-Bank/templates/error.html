@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Request blocked | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>Request blocked ({{ code }})</h1>
+<p class="intro">{{ message }}</p>
+<p><a href="{{ url_for('home') }}">Return to the homepage</a>.</p>
+{% endblock %}

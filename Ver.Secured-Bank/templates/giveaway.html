@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Cruise giveaway | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>Cruise giveaway</h1>
+<p class="intro">Check whether you have been selected for a free cruise ticket.</p>
+{% if extras.cruise_claimed %}
+    <section>
+        <h2>Your ticket</h2>
+        <p class="ticket">{{ extras.ticket_code }}</p>
+        <p>Your fictional ticket has been claimed.</p>
+    </section>
+{% else %}
+    {% if extras.cruise_eligible %}
+        <p>You have been selected as a winner. Claim your ticket below.</p>
+    {% else %}
+        <p>You have not been selected as a winner.</p>
+    {% endif %}
+    {% if extras.cruise_eligible %}
+    <form method="POST" action="{{ url_for('giveaway') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="button" type="submit">Claim ticket</button>
+    </form>
+    {% endif %}
+{% endif %}
+<p class="muted">Coursework giveaway demo. No real tickets or prizes.</p>
+{% endblock %}

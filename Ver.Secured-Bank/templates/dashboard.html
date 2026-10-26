@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}My account | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>Hello, {{ g.user.full_name or g.user.username }}</h1>
+<p class="intro">Your account overview.</p>
+<div class="account-overview">
+<section aria-labelledby="balance-heading">
+    <h2 id="balance-heading">Available balance</h2>
+    <p class="number">{{ g.user.balance_cents | money }}</p>
+    <dl>
+        <dt>Account ID</dt><dd>{{ g.user.id }}</dd>
+        <dt>Full name</dt><dd>{{ g.user.full_name or 'Add your name in Profile' }}</dd>
+        <dt>Username</dt><dd>{{ g.user.username }}</dd>
+        <dt>Account type</dt><dd>{{ 'VIP' if extras.is_vip else 'Standard' }}</dd>
+        <dt>Email</dt><dd>{{ g.user.email }}</dd>
+        <dt>Credit score</dt><dd>{{ g.user.credit_score }}</dd>
+        <dt>Outstanding debt</dt><dd>{{ extras.debt_cents | money }}</dd>
+        <dt>Total borrowing limit</dt><dd>{{ limit | money }}</dd>
+        <dt>Available to borrow</dt><dd>{{ remaining | money }}</dd>
+    </dl>
+</section>
+<section aria-labelledby="cruise-heading">
+    <h2 id="cruise-heading">Cruise eligibility</h2>
+    {% if extras.cruise_eligible %}
+        <p>You have been selected for a cruise ticket.</p>
+    {% else %}
+        <p>You have not been selected as a winner.</p>
+    {% endif %}
+    <table class="eligibility-table">
+        <tbody>
+            <tr>
+                <th scope="row">Customer</th>
+                <td>{{ g.user.full_name or g.user.username }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Username</th>
+                <td>{{ g.user.username }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Eligibility</th>
+                <td>{{ 'Eligible' if extras.cruise_eligible else 'Not selected' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Ticket status</th>
+                <td>{{ 'Claimed' if extras.cruise_claimed else 'Not claimed' }}</td>
+            </tr>
+            {% if extras.cruise_claimed and extras.ticket_code %}
+            <tr>
+                <th scope="row">Ticket code</th>
+                <td>{{ extras.ticket_code }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <div class="actions cruise-actions">
+        <a class="button secondary" href="{{ url_for('giveaway') }}">Open cruise giveaway</a>
+    </div>
+    <p class="muted">Coursework giveaway. No real tickets or prizes.</p>
+</section>
+</div>
+<section aria-labelledby="card-heading">
+    <h2 id="card-heading">Your demo card</h2>
+    <p class="muted">Fictional card details for this bank simulator. Cannot be used for payments.</p>
+    {% if card %}
+        <div class="demo-card">
+            <p class="demo-card-label">Mellow's Bank · DEMO ONLY</p>
+            <p class="card-number" aria-label="Demo card number">{{ card.card_number[0:4] }} {{ card.card_number[4:8] }} {{ card.card_number[8:12] }} {{ card.card_number[12:16] }}</p>
+            <dl>
+                <dt>Cardholder</dt><dd>{{ g.user.full_name or g.user.username }}</dd>
+                <dt>Demo CVV (three digits)</dt><dd class="card-cvv">{{ card.cvv }}</dd>
+                <dt>Created</dt><dd>{{ card.created_at }} UTC</dd>
+            </dl>
+        </div>
+    {% else %}
+        <p>Your demo card will be added when the app next starts.</p>
+    {% endif %}
+</section>
+<section>
+    <h2>Request a loan</h2>
+    <p>Your existing debt and new loan must fit within your borrowing limit.</p>
+    <form class="form" method="POST" action="{{ url_for('borrow') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="amount">Amount in SGD</label>
+        <input type="number" id="amount" name="amount" min="0.01" step="0.01" required>
+        <button class="button" type="submit">Request loan</button>
+    </form>
+</section>
+<section>
+    <h2>Recent transfers</h2>
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>From</th><th>To</th><th>Amount</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for item in history %}
+                <tr><td>{{ item.sender }}</td><td>{{ item.recipient }}</td>
+                    <td>{{ item.amount_cents | money }}</td><td>{{ item.created_at }} UTC</td></tr>
+            {% else %}
+                <tr><td colspan="4">No transfers yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

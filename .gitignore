@@ -8,3 +8,16 @@ backups/
 .env.*
 *.pem
 *.key
+
+.venv/
+__pycache__/
+instance/
+backups/
+*.db
+*.sqlite
+*.sqlite3
+.env
+*.key
+*.pem
+*.pfx
+*.p12

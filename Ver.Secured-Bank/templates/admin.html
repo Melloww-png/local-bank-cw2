@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Administration | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>Administration</h1>
+<p class="intro">Manage customer accounts, borrowing limits, and giveaway winners.</p>
+<section>
+    <h2>Customers</h2>
+    <p>Open a customer's account to change their details.</p>
+    {% for customer in customers %}
+        <article class="customer" id="customer-{{ customer.id }}">
+            <div class="customer-heading">
+                <h3>{{ customer.full_name or customer.username }}</h3>
+                <span class="badge">{{ 'VIP' if customer.is_vip else 'Standard' }}</span>
+            </div>
+            <p class="muted">Account {{ customer.id }} · {{ customer.username }} · {{ customer.email }}</p>
+            <dl>
+                <dt>Balance</dt><dd>{{ customer.balance_cents | money }}</dd>
+                <dt>Credit score</dt><dd>{{ customer.credit_score }}</dd>
+                <dt>Outstanding debt</dt><dd>{{ customer.debt_cents | money }}</dd>
+                <dt>Borrowing limit</dt><dd>{{ customer.borrowing_limit | money }}
+                    ({{ 'based on credit score' if customer.loan_limit_override_cents is none else 'set by admin' }})</dd>
+                <dt>Available to borrow</dt><dd>{{ customer.remaining | money }}</dd>
+                <dt>Cruise giveaway</dt><dd>{{ 'Winner' if customer.cruise_eligible else 'Not selected' }} ·
+                    {{ 'Ticket claimed' if customer.cruise_claimed else 'Ticket not claimed' }}</dd>
+            </dl>
+            <details>
+                <summary>Edit account</summary>
+                <form class="form admin-form" method="POST"
+                      action="{{ url_for('update_customer', user_id=customer.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-fields">
+                        <div class="field">
+                            <label for="vip-{{ customer.id }}">Account type</label>
+                            <select id="vip-{{ customer.id }}" name="is_vip" required>
+                                <option value="0" {% if not customer.is_vip %}selected{% endif %}>Standard</option>
+                                <option value="1" {% if customer.is_vip %}selected{% endif %}>VIP</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="score-{{ customer.id }}">Credit score</label>
+                            <input type="number" id="score-{{ customer.id }}" name="credit_score"
+                                   min="300" max="850" step="1" value="{{ customer.credit_score }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="debt-{{ customer.id }}">Outstanding debt (SGD)</label>
+                            <input type="number" id="debt-{{ customer.id }}" name="debt"
+                                   min="0" max="1000000" step="0.01"
+                                   value="{{ '%.2f' | format(customer.debt_cents / 100) }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="limit-{{ customer.id }}">Custom borrowing limit (SGD)</label>
+                            <input type="number" id="limit-{{ customer.id }}" name="borrowing_limit"
+                                   min="0" max="1000000" step="0.01"
+                                   value="{{ '%.2f' | format(customer.loan_limit_override_cents / 100) if customer.loan_limit_override_cents is not none else '' }}"
+                                   aria-describedby="limit-help-{{ customer.id }}">
+                        </div>
+                    </div>
+                    <p class="muted" id="limit-help-{{ customer.id }}">Leave the custom limit blank to use the credit score.
+                        Set it to 0 to stop new borrowing. VIP status is a label; set its limit separately.</p>
+                    <p class="muted">Debt is the new total, not an amount to add or subtract.
+                        Lowering the borrowing limit does not remove existing debt.</p>
+                    <button class="button" type="submit">Save account</button>
+                </form>
+            </details>
+            <div class="actions compact">
+                <form method="POST" action="{{ url_for('delete_debt', user_id=customer.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="button secondary" type="submit">Clear debt</button>
+                </form>
+                {% if not customer.cruise_eligible %}
+                    <form method="POST" action="{{ url_for('select_winner', user_id=customer.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="button secondary" type="submit">Select cruise winner</button>
+                    </form>
+                {% endif %}
+            </div>
+        </article>
+    {% else %}
+        <p>No customer accounts yet. Register a test customer first.</p>
+    {% endfor %}
+</section>
+<section>
+    <h2>Support inbox</h2>
+    {% for message in messages %}
+        <article class="message">
+            <h3>{{ message.username }}</h3>
+            <p class="muted">{{ message.created_at }} UTC</p>
+            {# V5 fixed: render support messages as escaped text. #}
+            <div class="support-text">{{ message.body }}</div>
+        </article>
+    {% else %}
+        <p>No support messages yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

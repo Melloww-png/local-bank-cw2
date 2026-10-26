@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mellow's Bank{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="container">
+        <a class="brand" href="{{ url_for('home') }}">Mellow's Bank</a>
+        <nav aria-label="Main navigation">
+            {% if g.user %}
+                <a href="{{ url_for('dashboard') }}">My account</a>
+                {% if g.user.role == 'admin' %}
+                    <a href="{{ url_for('search') }}">Search</a>
+                {% else %}
+                    <a href="{{ url_for('transfer') }}">Transfer</a>
+                {% endif %}
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('support') }}">Support</a>
+                {% if g.user.role == 'customer' %}
+                    <a href="{{ url_for('giveaway') }}">Cruise giveaway</a>
+                {% else %}
+                    <a href="{{ url_for('admin') }}">Admin</a>
+                {% endif %}
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="button secondary" type="submit">Log out</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('login') }}">Sign in</a>
+                <a href="{{ url_for('register') }}">Create account</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="container">
+        {% for message in get_flashed_messages() %}
+            <p class="notice" role="status">{{ message }}</p>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="container">Local coursework demo. Fictional money, cards, accounts, and prizes.</footer>
+</body>
+</html>

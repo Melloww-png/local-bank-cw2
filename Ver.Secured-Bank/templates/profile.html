@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My profile | Mellow's Bank{% endblock %}
+{% block content %}
+<h1>My profile</h1>
+<p class="intro">Update your full name, username, and email address.</p>
+<p>Current credit score: <strong>{{ g.user.credit_score }}</strong></p>
+<form class="form" method="POST" action="{{ url_for('profile') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="full_name">Full name</label>
+    <input id="full_name" name="full_name" maxlength="120" autocomplete="name"
+           value="{{ g.user.full_name }}" required>
+    <label for="username">Username</label>
+    <input id="username" name="username" minlength="3" maxlength="32"
+           pattern="{{ '[A-Za-z0-9_ ]{3,32}' if g.user.role == 'admin' else '[A-Za-z0-9_]{3,32}' }}"
+           value="{{ g.user.username }}" required>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" maxlength="254"
+           value="{{ g.user.email }}" required>
+    <button class="button" type="submit">Save profile</button>
+</form>
+{% endblock %}
